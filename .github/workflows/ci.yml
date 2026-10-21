@@ -44,7 +44,14 @@ jobs:
           pip install "pyspark==3.5.3" "delta-spark==3.2.1" "mlflow>=2.14,<4" "pyarrow>=14" "pandas>=2.0,<2.3" "numpy<2.1" scikit-learn joblib pytest pyyaml
           pip install -e . --no-deps
       - name: Medallion pipeline on local Spark + Delta, MLflow registry
-        run: pytest -q -rs tests/test_spark_jobs.py
+        run: |
+          set +e
+          pytest -q -rs --tb=short tests/test_spark_jobs.py 2>&1 | tee pytest.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" != "0" ]; then
+            grep -E "^E |Error|error:|Exception|FAILED" pytest.log | grep -v "^E *$" | head -25 | while IFS= read -r line; do echo "::error::${line:0:400}"; done
+          fi
+          exit $status
       - name: Validate bundle structure
         run: |
           python - <<'PY'
