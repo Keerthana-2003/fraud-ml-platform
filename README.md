@@ -42,6 +42,7 @@ Time-based split: train days 0-49, validation 50-59, monitoring 60-74, final tes
 | Champion on final post-drift window (days 75-89) | PR-AUC 0.457, ROC-AUC 0.965, precision 0.55 at a 0.5% review budget |
 | Drift monitoring | weekly max feature PSI rose 0.16 → 0.23 → 0.30 after the shift; score PSI stayed below 0.08 |
 | Retraining | triggered by PSI 0.23 > 0.2; challenger scored 0.426 vs champion 0.457, so the guardrail **kept the champion** |
+| LSTM over the last 10 transactions (PyTorch, weighted BCE, 4 epochs; CI run) | post-drift test PR-AUC **0.634** vs 0.487 for default gradient boosting on the same split; rank-average ensemble **0.686** |
 | Contextual bandit for review rates (2,000 rounds) | 3.6% more net fraud dollars caught than a fixed 1% review rate |
 | Responsible AI | permutation importance, per-alert explanations, FPR by segment (max/min ratio 1.6) and by channel |
 
@@ -56,8 +57,10 @@ Findings worth discussing:
 - Online transactions get ~14x the false-positive rate of in-person ones at the same threshold; the
   model card flags this for review.
 
-The LSTM sequence model is trained in CI (`.github/workflows/ci.yml`, `lstm` job) and its metrics are
-uploaded as an artifact; run it locally with `python scripts/run_lstm.py`.
+The LSTM row comes from the `lstm` job in CI (`.github/workflows/ci.yml`), which trains on the full
+dataset and uploads `results/lstm_metrics.json` as an artifact; run it locally with
+`python scripts/run_lstm.py`. The sequence model's gain suggests the order of recent transactions
+(tiny charges followed by a large one) carries signal the hand-built aggregates miss.
 
 ## Quick start
 
