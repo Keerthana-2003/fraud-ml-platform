@@ -27,6 +27,36 @@ jobs:
       - name: End-to-end pipeline smoke run
         run: python scripts/run_experiments.py --small
 
+  spark-databricks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Install PySpark, Delta Lake and MLflow
+        run: |
+          pip install "pyspark==3.5.3" "delta-spark==3.2.1" "mlflow>=2.14,<4" "pyarrow>=14" "pandas>=2.0,<2.3" "numpy<2.1" scikit-learn joblib pytest pyyaml
+          pip install -e . --no-deps
+      - name: Medallion pipeline on local Spark + Delta, MLflow registry
+        run: pytest -q -rs tests/test_spark_jobs.py
+      - name: Validate bundle structure
+        run: |
+          python - <<'PY'
+          import yaml, pathlib
+          b = yaml.safe_load(open("databricks.yml"))
+          for t in b["resources"]["jobs"]["fraud_pipeline"]["tasks"]:
+              p = pathlib.Path(t["notebook_task"]["notebook_path"])
+              assert p.exists(), p
+              assert p.read_text().startswith("# Databricks notebook source"), p
+          print("bundle ok:", [t["task_key"] for t in b["resources"]["jobs"]["fraud_pipeline"]["tasks"]])
+          PY
+
   lstm:
     runs-on: ubuntu-latest
     needs: test

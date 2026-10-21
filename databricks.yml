@@ -1,0 +1,53 @@
+# Databricks Asset Bundle: deploys the medallion pipeline as one scheduled job.
+#   databricks bundle validate
+#   databricks bundle deploy -t dev
+#   databricks bundle run fraud_pipeline -t dev
+# Tasks run on serverless compute (works on Databricks Free Edition).
+bundle:
+  name: fraud-ml-platform
+
+include: []
+
+variables:
+  catalog:
+    description: Unity Catalog catalog
+    default: main
+  schema:
+    description: Schema for the pipeline tables and model
+    default: fraud
+
+resources:
+  jobs:
+    fraud_pipeline:
+      name: fraud-ml-pipeline-${bundle.target}
+      schedule:
+        quartz_cron_expression: "0 0 6 ? * MON"
+        timezone_id: UTC
+        pause_status: PAUSED
+      parameters:
+        - {name: catalog, default: "${var.catalog}"}
+        - {name: schema, default: "${var.schema}"}
+      tasks:
+        - task_key: ingest_bronze
+          notebook_task: {notebook_path: ./databricks/notebooks/01_ingest_bronze.py}
+        - task_key: features_silver
+          depends_on: [{task_key: ingest_bronze}]
+          notebook_task: {notebook_path: ./databricks/notebooks/02_features_silver.py}
+        - task_key: drift_monitor
+          depends_on: [{task_key: features_silver}]
+          notebook_task: {notebook_path: ./databricks/notebooks/05_drift_monitor.py}
+        - task_key: train_register
+          depends_on: [{task_key: features_silver}]
+          notebook_task: {notebook_path: ./databricks/notebooks/03_train_register.py}
+        - task_key: batch_score_gold
+          depends_on: [{task_key: train_register}]
+          notebook_task: {notebook_path: ./databricks/notebooks/04_batch_score_gold.py}
+
+targets:
+  dev:
+    mode: development
+    default: true
+  prod:
+    mode: production
+    variables:
+      schema: fraud_prod
