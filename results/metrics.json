@@ -1,0 +1,431 @@
+{
+  "data": {
+    "rows": 144338,
+    "customers": 2000,
+    "days": 90,
+    "drift_day": 60,
+    "fraud_rows": 614,
+    "fraud_rate_pct": 0.425
+  },
+  "feature_pipeline": {
+    "backend": "processes",
+    "shards": 4,
+    "rows": 144338,
+    "seconds": 8.7
+  },
+  "supervised_validation": {
+    "logistic_regression_l2": {
+      "pr_auc": 0.0921,
+      "roc_auc": 0.9656,
+      "precision_at_0.5%": 0.1319,
+      "recall_at_0.5%": 0.2143,
+      "positives": 56,
+      "n": 18191,
+      "dollar_recall_at_0.5%": 0.3176
+    },
+    "gradient_boosting_default": {
+      "pr_auc": 0.364,
+      "roc_auc": 0.9474,
+      "precision_at_0.5%": 0.2967,
+      "recall_at_0.5%": 0.4821,
+      "positives": 56,
+      "n": 18191,
+      "dollar_recall_at_0.5%": 0.6528
+    },
+    "gradient_boosting_tuned": {
+      "pr_auc": 0.4034,
+      "roc_auc": 0.9813,
+      "precision_at_0.5%": 0.3297,
+      "recall_at_0.5%": 0.5357,
+      "positives": 56,
+      "n": 18191,
+      "dollar_recall_at_0.5%": 0.6472
+    },
+    "tuning": {
+      "best_params": {
+        "min_samples_leaf": 100,
+        "max_leaf_nodes": 15,
+        "learning_rate": 0.08,
+        "l2_regularization": 0.5
+      },
+      "cv_pr_auc_time_series": 0.2132
+    }
+  },
+  "bias_variance": {
+    "complexity_curve": [
+      {
+        "max_leaf_nodes": 2,
+        "train_pr_auc": 0.2963,
+        "val_pr_auc": 0.3026
+      },
+      {
+        "max_leaf_nodes": 4,
+        "train_pr_auc": 0.6283,
+        "val_pr_auc": 0.453
+      },
+      {
+        "max_leaf_nodes": 8,
+        "train_pr_auc": 0.9042,
+        "val_pr_auc": 0.4853
+      },
+      {
+        "max_leaf_nodes": 16,
+        "train_pr_auc": 1.0,
+        "val_pr_auc": 0.4977
+      },
+      {
+        "max_leaf_nodes": 31,
+        "train_pr_auc": 1.0,
+        "val_pr_auc": 0.4969
+      },
+      {
+        "max_leaf_nodes": 63,
+        "train_pr_auc": 1.0,
+        "val_pr_auc": 0.4874
+      },
+      {
+        "max_leaf_nodes": 127,
+        "train_pr_auc": 1.0,
+        "val_pr_auc": 0.4282
+      }
+    ],
+    "diagnosis_smallest_model": "underfitting (high bias): add features or capacity, reduce regularisation",
+    "diagnosis_largest_model": "overfitting (high variance): more regularisation, smaller trees, more data or early stopping",
+    "diagnosis_tuned_model": "overfitting (high variance): more regularisation, smaller trees, more data or early stopping",
+    "tuned_train_pr_auc": 0.7299
+  },
+  "unsupervised": {
+    "pca_explained_variance": [
+      0.2703,
+      0.1268,
+      0.0916,
+      0.0582,
+      0.0545
+    ],
+    "pca_total_explained": 0.6015,
+    "silhouette_by_k": {
+      "2": 0.4138,
+      "3": 0.3976,
+      "4": 0.3761,
+      "5": 0.3365,
+      "6": 0.3051,
+      "7": 0.3203,
+      "8": 0.2944
+    },
+    "chosen_k": 2,
+    "adjusted_rand_vs_true_segments": 0.3492
+  },
+  "regression_expected_amount": {
+    "mae_log_amount": 0.5512,
+    "r2": 0.3649,
+    "median_abs_pct_error": 0.4274
+  },
+  "feature_ablation_validation_pr_auc": {
+    "base_features": 0.4034,
+    "plus_regression_residual_pca_segments": 0.4657
+  },
+  "semi_supervised_validation": {
+    "labelled_share_of_train": 0.1024,
+    "fraud_labels_arrived_by_cutoff": "59/145",
+    "supervised_on_labelled_only_pr_auc": 0.3547,
+    "self_training_pr_auc": 0.4166,
+    "pseudo_labelled_rows": 54258
+  },
+  "drift_and_retraining": {
+    "weekly_drift": [
+      {
+        "days": "60-66",
+        "max_feature_psi": 0.1611,
+        "top_drifted": {
+          "is_online": 0.1611,
+          "amount_residual": 0.1366,
+          "pc5": 0.1342,
+          "history_depth": 0.1336,
+          "pc2": 0.1315
+        },
+        "score_psi": 0.0595
+      },
+      {
+        "days": "67-73",
+        "max_feature_psi": 0.2323,
+        "top_drifted": {
+          "pc5": 0.2323,
+          "pc2": 0.2215,
+          "pc3": 0.2138,
+          "pc4": 0.2133,
+          "pc1": 0.2099
+        },
+        "score_psi": 0.0641
+      },
+      {
+        "days": "74-80",
+        "max_feature_psi": 0.2978,
+        "top_drifted": {
+          "pc3": 0.2978,
+          "pc5": 0.2973,
+          "pc1": 0.2968,
+          "pc4": 0.2911,
+          "pc2": 0.2837
+        },
+        "score_psi": 0.065
+      },
+      {
+        "days": "81-87",
+        "max_feature_psi": 0.3998,
+        "top_drifted": {
+          "history_depth": 0.3998,
+          "pc4": 0.3445,
+          "pc1": 0.3437,
+          "pc2": 0.3436,
+          "pc5": 0.3377
+        },
+        "score_psi": 0.0726
+      },
+      {
+        "days": "88-89",
+        "max_feature_psi": 0.7291,
+        "top_drifted": {
+          "history_depth": 0.7291,
+          "pc1": 0.3296,
+          "pc5": 0.3197,
+          "pc3": 0.3179,
+          "pc4": 0.3121
+        },
+        "score_psi": 0.0579
+      }
+    ],
+    "champion_pr_auc_validation": 0.4657,
+    "reviewed_alert_precision": {
+      "validation_days_50_59": 0.1913,
+      "after_drift_days_60_74": 0.2115
+    },
+    "frauds_days_60_74_with_chargeback_by_day_75": "8/150",
+    "retrain_decision_week": "67-73",
+    "retrain_triggered": true,
+    "trigger_reasons": [
+      "feature PSI 0.23 > 0.2"
+    ],
+    "labels_known_at_retrain": {
+      "fraud_rows_days_0_74": 351,
+      "chargebacks_arrived": 155,
+      "plus_analyst_confirmed": 217
+    },
+    "final_window_days_75_89": {
+      "champion": {
+        "pr_auc": 0.457,
+        "roc_auc": 0.9647,
+        "precision_at_0.5%": 0.5465,
+        "recall_at_0.5%": 0.3574,
+        "positives": 263,
+        "n": 34439,
+        "dollar_recall_at_0.5%": 0.4332
+      },
+      "challenger_chargebacks_only": {
+        "pr_auc": 0.3045,
+        "roc_auc": 0.9432,
+        "precision_at_0.5%": 0.4012,
+        "recall_at_0.5%": 0.2624,
+        "positives": 263,
+        "n": 34439,
+        "dollar_recall_at_0.5%": 0.2433
+      },
+      "challenger_with_analyst_feedback": {
+        "pr_auc": 0.4262,
+        "roc_auc": 0.9616,
+        "precision_at_0.5%": 0.564,
+        "recall_at_0.5%": 0.3688,
+        "positives": 263,
+        "n": 34439,
+        "dollar_recall_at_0.5%": 0.4899
+      }
+    },
+    "challenger_promoted": false,
+    "registry_events": [
+      {
+        "event": "registered",
+        "version": "v1",
+        "stage": "champion",
+        "at": 1792596874.397014
+      },
+      {
+        "event": "registered",
+        "version": "v2",
+        "stage": "challenger",
+        "at": 1792596886.8627696
+      },
+      {
+        "event": "registered",
+        "version": "v3",
+        "stage": "challenger",
+        "at": 1792596886.8735123
+      }
+    ]
+  },
+  "champion_final": {
+    "version": "v1",
+    "model": "HistGradientBoosting (tuned)",
+    "trained_on": "days 0-59",
+    "metrics": {
+      "pr_auc": 0.457,
+      "roc_auc": 0.9647,
+      "precision_at_0.5%": 0.5465,
+      "recall_at_0.5%": 0.3574,
+      "positives": 263,
+      "n": 34439,
+      "dollar_recall_at_0.5%": 0.4332
+    }
+  },
+  "bandit_review_budget": {
+    "rounds": 2000,
+    "bandit_reward": 248613,
+    "fixed_rate_reward": 240053,
+    "oracle_reward": 287360,
+    "regret_vs_oracle": 38747,
+    "uplift_vs_fixed_pct": 3.6,
+    "learned_alert_rate": {
+      "business": 0.02,
+      "family": 0.005,
+      "retiree": 0.02,
+      "student": 0.01
+    },
+    "oracle_alert_rate": {
+      "business": 0.02,
+      "family": 0.01,
+      "retiree": 0.02,
+      "student": 0.02
+    },
+    "curve": [
+      {
+        "round": 200,
+        "bandit": 16463,
+        "fixed": 22545,
+        "oracle": 27724
+      },
+      {
+        "round": 400,
+        "bandit": 40536,
+        "fixed": 45557,
+        "oracle": 56981
+      },
+      {
+        "round": 600,
+        "bandit": 66681,
+        "fixed": 70776,
+        "oracle": 85255
+      },
+      {
+        "round": 800,
+        "bandit": 90453,
+        "fixed": 93391,
+        "oracle": 111459
+      },
+      {
+        "round": 1000,
+        "bandit": 120306,
+        "fixed": 118058,
+        "oracle": 143660
+      },
+      {
+        "round": 1200,
+        "bandit": 144545,
+        "fixed": 140903,
+        "oracle": 171624
+      },
+      {
+        "round": 1400,
+        "bandit": 172927,
+        "fixed": 169293,
+        "oracle": 203527
+      },
+      {
+        "round": 1600,
+        "bandit": 199251,
+        "fixed": 194445,
+        "oracle": 233392
+      },
+      {
+        "round": 1800,
+        "bandit": 223685,
+        "fixed": 216310,
+        "oracle": 259370
+      },
+      {
+        "round": 2000,
+        "bandit": 248613,
+        "fixed": 240053,
+        "oracle": 287360
+      }
+    ]
+  },
+  "responsible_ai": {
+    "global_importance": {
+      "is_new_merchant": 0.2135,
+      "log_dist_home_km": 0.1376,
+      "amount_residual": 0.1191,
+      "is_online": 0.1112,
+      "log_secs_since_last": 0.0903,
+      "log_amount": 0.0816,
+      "pc1": 0.0591,
+      "amount_vs_median": 0.0514,
+      "hour_deviation": 0.0457,
+      "cat_travel": 0.0362
+    },
+    "example_explanation": {
+      "score": 0.9968,
+      "top_contributions": {
+        "is_new_merchant": 0.1219,
+        "amount_residual": 0.0522,
+        "hour_deviation": 0.0105,
+        "log_amount": 0.0098,
+        "log_secs_since_last": 0.0039
+      }
+    },
+    "slices_segment": {
+      "by_group": {
+        "business": {
+          "n": 4598,
+          "fraud": 30,
+          "recall": 0.4333,
+          "false_positive_rate": 0.00241
+        },
+        "family": {
+          "n": 12746,
+          "fraud": 81,
+          "recall": 0.3827,
+          "false_positive_rate": 0.00245
+        },
+        "retiree": {
+          "n": 5325,
+          "fraud": 75,
+          "recall": 0.3733,
+          "false_positive_rate": 0.00152
+        },
+        "student": {
+          "n": 11770,
+          "fraud": 77,
+          "recall": 0.2987,
+          "false_positive_rate": 0.00239
+        }
+      },
+      "fpr_disparity_ratio": 1.61
+    },
+    "slices_channel": {
+      "by_group": {
+        "in_person": {
+          "n": 15057,
+          "fraud": 32,
+          "recall": 0.5625,
+          "false_positive_rate": 0.00027
+        },
+        "online": {
+          "n": 19382,
+          "fraud": 231,
+          "recall": 0.3333,
+          "false_positive_rate": 0.00386
+        }
+      },
+      "fpr_disparity_ratio": 14.3
+    }
+  },
+  "runtime_seconds": 116.6
+}

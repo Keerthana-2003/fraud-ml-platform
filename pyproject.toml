@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fraud-ml-platform"
+version = "0.1.0"
+description = "Fraud detection ML lifecycle: point-in-time features, distributed preparation (Ray), supervised, unsupervised, semi-supervised, sequence (LSTM) and bandit models, drift monitoring, retraining and responsible AI."
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24", "pandas>=2.0", "scikit-learn>=1.4", "joblib>=1.3"]
+
+[project.optional-dependencies]
+ray = ["ray>=2.9"]
+torch = ["torch>=2.2"]
+dev = ["pytest>=8", "ruff==0.15.0"]
+
+[tool.setuptools]
+packages = ["fraudml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::UserWarning", "ignore::sklearn.exceptions.UndefinedMetricWarning"]
+
+[tool.ruff]
+line-length = 125
