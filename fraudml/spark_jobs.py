@@ -95,7 +95,7 @@ def train_and_register(spark, silver_table: str, model_name: str, experiment: st
         metrics = fraud_metrics(y[va], model.predict_proba(X[va])[:, 1], pdf.loc[va, "amount"].to_numpy())
         mlflow.log_params({**params, "train_until_day": train_until_day, "valid_until_day": valid_until_day,
                            "silver_table": silver_table})
-        mlflow.log_metrics({k: float(v) for k, v in metrics.items() if isinstance(v, (int, float))})
+        mlflow.log_metrics({k.replace("%", "pct"): float(v) for k, v in metrics.items() if isinstance(v, (int, float))})
         sample = X[tr].head(100)
         info = _log_pyfunc(mlflow, FraudScorer(model), infer_signature(sample, model.predict_proba(sample)[:, 1]),
                            model_name)
