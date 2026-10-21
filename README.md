@@ -62,6 +62,28 @@ dataset and uploads `results/lstm_metrics.json` as an artifact; run it locally w
 `python scripts/run_lstm.py`. The sequence model's gain suggests the order of recent transactions
 (tiny charges followed by a large one) carries signal the hand-built aggregates miss.
 
+## Databricks deployment (Delta Lake + MLflow)
+
+The same pipeline runs on Databricks as a medallion architecture, deployed with a Databricks Asset
+Bundle (`databricks.yml`, notebooks in `databricks/notebooks/`, code in `fraudml/spark_jobs.py`):
+
+| Task | What it does |
+|---|---|
+| `ingest_bronze` | raw transactions to a Delta table |
+| `features_silver` | point-in-time features with `groupBy("customer_id").applyInPandas`, distributed across the cluster |
+| `drift_monitor` | PSI per feature appended to a monitoring Delta table; sets a `retrain` task value |
+| `train_register` | trains, logs params and metrics to MLflow, registers the model in Unity Catalog, moves the `champion` alias only if it beats the current champion by 0.01 PR-AUC |
+| `batch_score_gold` | scores new data with `models:/<name>@champion` as a Spark UDF into a gold Delta table |
+
+```bash
+databricks bundle deploy -t dev          # serverless; works on Databricks Free Edition
+databricks bundle run fraud_pipeline -t dev
+```
+
+CI (`spark-databricks` job) runs the whole medallion pipeline on a local Spark cluster with Delta
+Lake and an MLflow registry, and checks that the distributed Spark features match the
+single-machine features exactly.
+
 ## Quick start
 
 ```bash
@@ -87,6 +109,8 @@ fraudml/sequence.py        LSTM over each customer's recent transactions (PyTorc
 fraudml/bandit.py          Thompson-sampling contextual bandit for review rates
 fraudml/monitoring.py      PSI drift, retrain policy, champion/challenger model registry
 fraudml/responsible.py     permutation importance, per-alert explanations, slice metrics, model card
+fraudml/spark_jobs.py      Databricks / Spark: Delta medallion tables, MLflow registry, Spark UDF scoring, drift table
+databricks/, databricks.yml  notebooks and Asset Bundle job
 scripts/                   run_experiments.py, run_lstm.py
 ```
 
